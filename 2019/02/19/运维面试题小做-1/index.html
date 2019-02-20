@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="linux 如何挂载在window上的共享目录  思考:本题考查linux基本命令操作方式，mount命令以及文件系统的管理，属于存储题。 解答:mount -t cifs //192.168.1.3/server /mnt/server -o user=administrator,pass=123456 详细解释: mount -t 选择filestystem的类型为cifs，原因是cifs是">
+<meta name="keywords" content="面试题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="运维面试题小做(1) ">
+<meta property="og:url" content="http://yoursite.com/2019/02/19/运维面试题小做-1/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="linux 如何挂载在window上的共享目录  思考:本题考查linux基本命令操作方式，mount命令以及文件系统的管理，属于存储题。 解答:mount -t cifs //192.168.1.3/server /mnt/server -o user=administrator,pass=123456 详细解释: mount -t 选择filestystem的类型为cifs，原因是cifs是">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-02-19T14:30:06.134Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="运维面试题小做(1) ">
+<meta name="twitter:description" content="linux 如何挂载在window上的共享目录  思考:本题考查linux基本命令操作方式，mount命令以及文件系统的管理，属于存储题。 解答:mount -t cifs //192.168.1.3/server /mnt/server -o user=administrator,pass=123456 详细解释: mount -t 选择filestystem的类型为cifs，原因是cifs是">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/02/19/运维面试题小做-1/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>运维面试题小做(1)  | Hexo</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/19/运维面试题小做-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">运维面试题小做(1) 
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-02-19 05:16:00 / Modified: 22:30:06" itemprop="dateCreated datePublished" datetime="2019-02-19T05:16:00+08:00">2019-02-19</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/devops/" itemprop="url" rel="index"><span itemprop="name">devops</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/devops/运维面试题/" itemprop="url" rel="index"><span itemprop="name">运维面试题</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
+<li><p>linux 如何挂载在window上的共享目录</p>
+<ul>
+<li>思考:本题考查linux基本命令操作方式，mount命令以及文件系统的管理，属于存储题。</li>
+<li>解答:mount -t cifs //192.168.1.3/server /mnt/server -o user=administrator,pass=123456</li>
+<li>详细解释: mount -t 选择filestystem的类型为cifs，原因是cifs是samber的默认文件系统格式。同时注意,linux必须安装samber服务,<strong><em><br>sudo apt-get install nfs-common<br>sudo apt-get install smbfs</em></strong> window上samber服务必须开启 关闭防火墙等操作 -o则是指定用户名和密码<br>192.168.1.3是window的机器的ip地址server是共享文件夹名称。/mnt/server是指linux上创建的文件夹</li>
+</ul>
+</li>
+<li><p>查看http并发请求以及其tcp连接状态</p>
+<ul>
+<li>思考:本题考查netstat 命令用法，网络知识，管道awk命令用法，属于网络题</li>
+<li>解答：1. netstat -nt | awk ‘{++S[$NF]}END{for(a in S) print a,S[a]}‘ </li>
+<li>详细解释：用awk的原因是,可以统计每一种不同的状态并且存储起来，netstat -tn 取出tcp状态并且不解析为机器名称 在统计完成以后，用for循环，将不同状态的的数量全部打印出来,在netstat -nt 以后，显示的内容默认为六列，其中最后一列为状态，状态有以下几种</li>
+<li>补充知识 还有ulimit -n 查看linux系统打开最大的文件描述符，这里默认1024，不修改这里web服务器修改再大也没用。若要用就修改很几个办法，这里说其中一个：<br><strong><em>修改/etc/security/limits.conf<br>soft nofile 10240<br>hard nofile 10240</em></strong></li>
+</ul>
+</li>
+<li><p>查看当前系统每个ip的连接数</p>
+<ul>
+<li>思考：本体还是考查netstat用法，以及awk取值的方式,属于网络题</li>
+<li>回答：netstat -n |awk ‘/^tcp/ {print $5}’ |awk -F : ‘{print $1}’|sort |uniq -c |sort -rn </li>
+<li>详细解释: 必须用awk ‘/^tcp/‘这样的方式来取tcp否则最开始显示的几行都会被打印出来，后面的awk -f 是取ip而舍弃端口，sort |uniq -c |sort -rn 的方式则是在去重合并以及按照数字排列的常用方式</li>
+</ul>
+</li>
+<li><p>shell下生成32为随机密码的方式</p>
+<ul>
+<li>思考： 考查命令的使用方式，考查linux系统伪设备，考查/dev/urandom,/dev/random的差别 属于存储题</li>
+<li>解答：cat /dev/urandom | head -1 | md5sum | head -c 32 &gt;&gt; /pass</li>
+<li>详细解释: 通过伪设备打印出来，并且经过一系列计算，并且取出前32位</li>
+</ul>
+</li>
+<li><p>统计出apache的access.log中访问量最多的5个IP</p>
+<ul>
+<li>思考： apache 服务器日志是可以自己定义的，所以肯定是默认的ip地址存放位置。本题考查的是对apache默认日志的熟悉程度,经过刚才的查找,发现apache的ip地址存放在每一条日志的首部。属于网络题</li>
+<li>cat /var/log/access.log |awk ‘{print $1}’|sort |uniq -c |sort -rn |head -5 </li>
+<li>详细解答：awk 取出ip 后面的sort |uniq|sort -rn 都是去重排序操作 head 则是取出前五内容</li>
+</ul>
+</li>
+<li><p>rss和vsz的区别</p>
+<ul>
+<li>思考:这是一道典型的存储题。考查linux 内存管理方式以及一些术语的区别。</li>
+<li>解答:rss 实际使用内存 , vsz 虚拟内存 rss的计算方式</li>
+<li>详细解答。<pre><code>rss(实际使用内容) = 程序本身实际使用内容+堆栈交换分区内内存+共享库实际内存
+vsz(虚拟内存) = 程序本身占有内存+堆栈分区占有内存+共享库占有内存
+所以vsz&gt;&gt;&gt;&gt;rss
+</code></pre></li>
+</ul>
+</li>
+<li><p>如何查看二进制文件的内容</p>
+<ul>
+<li>思考：本题考查文件取出的可视性，是一道典型的存储题,同时考查hexdump命令的使用</li>
+<li>解答: hexdump命令，编辑器使用biew,hexedit和vim -b </li>
+<li>详细解答：</li>
+</ul>
+</li>
+<li><p>检测并修复/dev/hda5</p>
+<ul>
+<li>思考：本题考察文件存储方式，如何存储一个文件并且在出现问题之后尝试修复，属于存储题</li>
+<li>解答：fsck用来检查和维护不一致的文件系统。若系统掉电或磁盘发生问题，可利用fsck命令对文件系统进行检查,</li>
+<li>详细解答。fsck实际上是通盘扫面文件系统，尝试恢复数据</li>
+</ul>
+</li>
+<li><p>linux 机器的开机启动流程    </p>
+<ul>
+<li>思考:这道题目考察的点很多,但是总体来说,属于存储题目</li>
+<li>解答: 1:bios自检查 2:读取mbr 3：boot loader 4：使用grub配置 5:加载内核 6: init启动级别 7:启动内核 8:执行本地服务 9:执行/bin/login</li>
+<li>详细解答： 本体考查点有两个，一个是内核加载前做了什么，一个是内核加载以后做了什么。内核加载前操作是通用操作，只要使用特定芯片的机器，那么机器的一般设置都是这样，而linux机器启动以后，级别init启动级别，本地服务和/bin/login 执行注意前后就可以</li>
+</ul>
+</li>
+<li><p>符号链接和硬链接区别</p>
+<ul>
+<li>思考:本题属于存储题，考的是linux是如何存取文件</li>
+<li>解答: 软链接是创建的文件是指向文件本身，删除软连接对文件本身是没有影响的，修改软链接文件会修改文件本身，因为有指针指向。硬链接是相当于文件复制了一份</li>
+<li>详细解释: 在linux的存储设计中，文件名称只是代号，真正绝对文件存储的是inode，系统将文件名转换为inode，然后通过inode查看文件的具体数据,而设计链接的作用是解决文件共享使用,增加文件安全，节省存储等,当一个inode号对应多个文件名的时候,那么这个文件就是一个硬链接,所以硬连接的文件是独立的,删除其中一个不会影响其他,这设计的时候不能跨文件系统使用，而软链接的inode和源文件的inode是不同的，软链接的data block的内容指向原文件的inode</li>
+</ul>
+</li>
+<li><p>保存当前磁盘分区的分区表</p>
+<ul>
+<li>思考: 本题属于存储题，考的是dd命令的使用</li>
+<li>dd if=/dev/sda of=./mbr.txt bs = 1 count = 512</li>
+<li>详细解释：</li>
+</ul>
+</li>
+<li>手动安装grub<ul>
+<li>思考: 存储题，考操作系统如何在硬盘中存储，以及装系统之中发生的事情</li>
+<li>解答：grub-install /dev/sda</li>
+<li>详细解释：grub没安装有这么几种可能，安装系统时候，没有选择这个软件安装 或者操作系统双系统安装，window覆盖了grub所以导致grub消失不见</li>
+</ul>
+</li>
+<li>修改内核参数<ul>
+<li>思考： 存储题，考的是linux这个操作系统的整体配置</li>
+<li>解答：<strong><em> vim /etc/sysctl.conf &amp;&amp; sysctl -p </em></strong></li>
+<li>详细解释： 考对linux系统的熟悉程度，linux内核配置文件在何处</li>
+</ul>
+</li>
+<li>取1到39的随机数<ul>
+<li>解答：echo $[$RANDOM%39]</li>
+</ul>
+</li>
+<li>显示/etc/inittab中以#开头，且后面跟了一个或者多个空白字符，而后又跟了任意非空白字符的行<ul>
+<li>思考：存储题</li>
+<li>解答：cat /etc/inittab |grep ‘^#{1,}[^ ]’ </li>
+</ul>
+</li>
+<li><p>显示/etc/inittab中包含了:一个数字:(即两个冒号中间一个数字)的行</p>
+<ul>
+<li>思考：存储题</li>
+<li>解答: cat /etc/inittab |grep ‘\:[0-9]{1,}\:’ </li>
+<li>详细解释：/etc/inittab 的输出语句的格式为id：runlevels：action：process 其中runlevel为数字0-6,所以就是现实所有运行中的程序</li>
+</ul>
+</li>
+<li><p>vim 操作访问简单描述</p>
+<ul>
+<li>解答：1.复制链贴 yy p 多行操作 3yy p<pre><code>2.删除dd,删除链贴p
+3.括号跳转 %
+等
+</code></pre></li>
+</ul>
+</li>
+<li><p>写一个脚本,创建用户user1-20,密码user后面五个随机字符</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">   #descraption:useradd user$i</span><br><span class="line">   	for i in `seq 1 20`</span><br><span class="line">       	useradd user$i</span><br><span class="line">       echo &quot;user$i `echo $RANDOM|md5sum|cut -c 1-5|passwd  --stdin user$i`&quot;</span><br><span class="line">       done</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>写一个脚本,嗅探192.168.1.0/24的计算机存活与否，能ping说明存活</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">   #!/bin/bash</span><br><span class="line">#decription: seq 1到255 逐个ping，ping通顺就是活着,不通就是挂</span><br><span class="line"> 	for ip in `seq 1 255`</span><br><span class="line"> 		do</span><br><span class="line">		&#123;</span><br><span class="line">    		ping -c 1 192.168.1.$ip &gt; /dev/null 2&gt;&amp;1</span><br><span class="line">	if [ $? -eq 0 ]; then</span><br><span class="line">    		echo 192.168.1.$ip.&quot;up&quot;</span><br><span class="line">   	else</span><br><span class="line">    		echo 192.168.1.$ip.&quot;down&quot;</span><br><span class="line">	fi</span><br><span class="line">	&#125;&amp;</span><br><span class="line">	done</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>写一个脚本(三个要求)</p>
+<ul>
+<li>第一，写一个函数，函数包含两个参数，第一个参数是是url,第二个参数是用户指定目录</li>
+<li>第二，如果文件目录不存在，那么弹出询问框，y/n。如果用户选择创建，则创建，否则返回51</li>
+<li>第三， 如果文件目录存在，开始下载，如果下载成功，返回0，下载失败返回52<br>解答详解以及分析，分析在描述里面<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">   #bin/bash</span><br><span class="line">#description: 下载文件到指定目录函数，其中$1为url，$2为用户指定目录</span><br><span class="line">url=$1</span><br><span class="line">dir=$2</span><br><span class="line">download()&#123;</span><br><span class="line">	if [ ! -d &quot;$2&quot; ]; then</span><br><span class="line">		read -n1 -p &quot;make dir $2?y/n&quot; answer</span><br><span class="line">   		if [ &quot;$answer&quot; == &quot;y&quot; ]; then</span><br><span class="line">   			mkdir -p $dir</span><br><span class="line">       	else</span><br><span class="line">       		return &quot;51&quot;</span><br><span class="line">       	fi</span><br><span class="line">   	fi</span><br><span class="line">	cd $dir</span><br><span class="line">   	wget $url 1&gt; /dev/null 2&gt;&amp;1</span><br><span class="line">   	if [ &quot;$?&quot; -ne 0 ]; then</span><br><span class="line">   		return &quot;52&quot;</span><br><span class="line">else</span><br><span class="line">	return &quot;0&quot;</span><br><span class="line">   	fi</span><br><span class="line">&#125;</span><br><span class="line">download $url $dir</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/面试题/" rel="tag"># 面试题</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/17/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/02/20/从0开始学python/" rel="prev" title="我学python(0)----简介与安装">
+                我学python(0)----简介与安装 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">tags</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.0.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
