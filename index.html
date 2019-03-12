@@ -302,7 +302,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/20/从0开始学linux-1/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/12/运维面试题小做-2-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="John Doe">
@@ -322,7 +322,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/02/20/从0开始学linux-1/" class="post-title-link" itemprop="url">我学linux(0)</a>
+                <a href="/2019/03/12/运维面试题小做-2-1/" class="post-title-link" itemprop="url">运维面试题小做(2)</a>
               
             
           </h1>
@@ -347,12 +347,24 @@
                 
               
 
-              <time title="Created: 2019-02-20 13:52:42 / Modified: 13:52:51" itemprop="dateCreated datePublished" datetime="2019-02-20T13:52:42+08:00">2019-02-20</time>
+              <time title="Created: 2019-03-12 23:14:26" itemprop="dateCreated datePublished" datetime="2019-03-12T23:14:26+08:00">2019-03-12</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-03-13 00:22:55" itemprop="dateModified" datetime="2019-03-13T00:22:55+08:00">2019-03-13</time>
               
             
           </span>
@@ -388,7 +400,51 @@
       
         
           
-            
+            <ol>
+<li><p>简述raid0 raid1 raid5 三种工作模式的工作原理及特点</p>
+<ul>
+<li>思考: 本题考查raid方式使用，以及为什么要这么做，是一道存储题</li>
+<li><p>解答: 多个硬盘合成一个硬盘,同时做备份。<br>raid0 一块硬盘和多块硬盘集合,大小等于多块硬盘的和。<br>raid1 只能两块盘，硬盘大小等于最小，一块是另外一快的备份<br>raid5 三快盘,大小等于第一块和其他两块的和<br>raid10 损失一半硬盘，量量做raid1，合起来做raid0<br>冗余度高到低: raid1(50%) raid10(50%) raid5(33%) raid0(0%)<br>性能好到快：raid0(写入快,因为没有备份问题) raid10 raid5 raid1<br>成本从高到底: raid0 raid5 raid1 raid10 (刚好和冗余度相反)</p>
+<p>使用场景：raid1 但太重要服务器，数据不多，这时候不考虑冗余，而是数据备份的重要性<br>raid10 用来数据库主库，数据不能丢失，必须备份，而且数据比较多<br>raid0 raid5 数据库从库,web服务器,应用服务器,<br>原因是数据比较少而且不是特别重要</p>
+</li>
+</ul>
+</li>
+<li>LVS、Nginx、HAproxy有什么区别？工作中你怎么选择？<ul>
+<li>思考：考查负载均衡服务器的使用</li>
+<li>解答 lvs:基于四层的转发<pre><code>nginx：是web服务器，反向代理服务器，负载均衡服务器，是工作在第七层的服务器
+haproxy:基于四层和七层都可以做，是专业的负载均衡服务器
+</code></pre></li>
+</ul>
+</li>
+<li>如何实现 Nginx 代理的节点访问日志记录客户的 IP 而不是代理的 IP？<ul>
+<li>思考：没搞懂题目意思，以后补</li>
+<li>解答：等待补充proxy_set_header X-Forwarded-For $remote_addr;</li>
+</ul>
+</li>
+<li><p>/var/log/messages日志出现kernel: nf_conntrack: table full, dropping packet.请问是什么原因导致的？如何解决？</p>
+<ul>
+<li>解答: linux中/proc/sys/net/netfilter/nf_conntrack_max设置了nf_conntrack最大的连接数目，最大的数目是65536，服务器最大的连接数大于这个数字时候，就会出现nf_conntrack:table full 这个错误，解决方法，修改conntrack最大跟踪连接数<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">   [root@server ~]# vim /etc/sysctl.conf</span><br><span class="line">[root@server ~]# sysctl -p</span><br><span class="line">net.nf_conntrack_max = 100000</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>linux系统Nginx php环境，发现PHP-FPM进程高，请说出可能原因以及如何解决?</p>
+<ul>
+<li>思考: 考查php-fpm设置</li>
+<li>解决方案：修改/etc/php-fpm.d/<a href="http://www.conf文件中的pm.max_children,减低进程数目，重启php-fpm。或者增加机器。" target="_blank" rel="noopener">www.conf文件中的pm.max_children,减低进程数目，重启php-fpm。或者增加机器。</a></li>
+</ul>
+</li>
+<li><p>MySQL一主多从，主库宕机，如何合理切换到从库，其他的从库又如何处理？</p>
+<ul>
+<li>思考： 不知道</li>
+<li>解决方案： 不知道</li>
+</ul>
+</li>
+<li><p>误操作drop语句导致数据库数据被破坏，请给出恢复思想及实际大体步骤<br> <em>思考：binlog 
+ </em>解决方案：</p>
+</li>
+<li>请举一个生产中你遇到的实际的例子网站打开慢由于访问MySQL数据库慢导致的</li>
+</ol>
+
           
         
       
